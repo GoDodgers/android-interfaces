@@ -266,18 +266,14 @@ fun BuildScaffold() {
                                 overflow = TextOverflow.Ellipsis,
                                 onTextLayout = {
                                     showMoreBtn = it.hasVisualOverflow
-                                    println("msg")
-                                    println(msg)
-                                    println("showMoreBtn")
-                                    println(showMoreBtn)
                                 }
                             )
 
-                            Spacer(modifier = Modifier.height(4.dp))
+                            Spacer(modifier = Modifier.height(2.dp))
 
                             if (showMoreBtn) {
-                                Button({}) {
-                                    Text("mas")
+                                TextButton({}) {
+                                    Text("mas...")
                                 }
                             }
                         }
