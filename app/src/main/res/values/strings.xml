@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">android interfaces</string>
+    <string name="msg_prompt">Type message</string>
 </resources>

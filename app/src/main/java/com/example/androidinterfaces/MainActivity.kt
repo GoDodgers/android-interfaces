@@ -12,14 +12,17 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -42,6 +45,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
@@ -69,6 +73,7 @@ import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.VectorPainter
 import androidx.compose.ui.graphics.vector.VectorPath
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -94,7 +99,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             Surface {
-                BuildScaffold()
+                ChatView()
             }
         }
     }
@@ -102,11 +107,7 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BuildScaffold() {
-
-    var showMoreBtn by remember {
-        mutableStateOf(false)
-    }
+fun ChatView() {
 
     var textFieldTxt by remember {
         mutableStateOf("")
@@ -185,7 +186,7 @@ fun BuildScaffold() {
 //                            Text("Text message")
 //                        },
                         placeholder = {
-                            Text("Text message")
+                            Text(stringResource(id = R.string.msg_prompt))
                         },
                         onValueChange = {
                             textFieldTxt = it
@@ -202,7 +203,6 @@ fun BuildScaffold() {
                                     .wrapContentWidth()
                                     .padding(end = 16.dp),
                                 horizontalArrangement = Arrangement.SpaceEvenly,
-//                                horizontalArrangement = Arrangement.SpaceAround,
                             ) {
                                 Icon(
                                     modifier = Modifier.padding(start = 8.dp),
@@ -234,7 +234,9 @@ fun BuildScaffold() {
             "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos, sed aperiam? Quibusdam et cupiditate quas. Unde id veniam fugit magnam! Et corrupti quaerat aperiam consequuntur. Quos, sed aperiam? Quibusdam et cupiditate quas. Unde id veniam fugit magnam! Unde id veniam fugit magnam! Et corrupti quaerat aperiam consequuntur.",
             "foobar",
             "Unde id veniam fugit magnam! Et corrupti quaerat aperiam consequuntur. Quibusdam et cupiditate quas. Unde id veniam fugit magnam! Et corrupti quaerat aperiam consequuntur.",
-            "baz"
+            "baz",
+            "boo",
+            "Veritatis maiores eaque nostrum, quibusdam consequatur atque temporibus quia sit tempora ex quos, dolorem neque consequuntur pariatur nesciunt qui tenetur illum non ullam itaque officiis, provident quaerat sint mollitia. Eos magnam vel, ipsum inventore similique eveniet fuga sit quasi pariatur consequuntur doloribus sunt dolore! Nobis, vel cum neque aperiam illum nam ut est, odio cupiditate veritatis commodi quibusdam ipsa id et voluptatibus, modi sint sit sapiente excepturi repudiandae recusandae alias eaque eligendi."
         )
 
         Column(
@@ -246,39 +248,7 @@ fun BuildScaffold() {
         ) {
 
             msgs.reversed().forEachIndexed { i, msg ->
-                BubbleLayout (
-                    modifier = Modifier.padding(horizontal = 8.dp),
-                    backgroundColor = if (i % 2 == 0) MaterialTheme.colorScheme.inversePrimary else MaterialTheme.colorScheme.surfaceDim,
-                    bubbleState = BubbleState(
-                        cornerRadius = BubbleCornerRadius(topLeft = 16.dp, topRight = 16.dp, bottomLeft = 16.dp, bottomRight = 16.dp),
-                        alignment = if (i % 2 == 0) ArrowAlignment.BottomRight else ArrowAlignment.BottomRight,
-                        arrowShape = ArrowShape.Curved,
-                        drawArrow = true,
-                    ),
-                ) {
-                    Box (
-                        Modifier.padding(vertical = 8.dp, horizontal = 8.dp),
-                    ) {
-                        Column {
-                            Text(
-                                text = msg,
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis,
-                                onTextLayout = {
-                                    showMoreBtn = it.hasVisualOverflow
-                                }
-                            )
-
-                            Spacer(modifier = Modifier.height(2.dp))
-
-                            if (showMoreBtn) {
-                                TextButton({}) {
-                                    Text("mas...")
-                                }
-                            }
-                        }
-                    }
-                }
+                Message(i, msg)
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
@@ -286,189 +256,72 @@ fun BuildScaffold() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Preview
 @Composable
-fun ScaffoldPreview() {
+private fun Message(i: Int, msg: String) {
 
-    var showMoreBtn by remember {
+    var showMoreBtn: Boolean by remember {
         mutableStateOf(false)
     }
 
-    var textFieldTxt by remember {
-        mutableStateOf("")
+    var showMore: Boolean by remember {
+        mutableStateOf(false)
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                colors = topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.primary,
-                ),
-                navigationIcon = {
-                    IconButton({}) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "content description"
-                        )
-                    }
-                },
-                title = {
-                    Row (
-                        verticalAlignment = Alignment.CenterVertically
-                    ){
-                        Icon(
-                            modifier = Modifier
-                                .size(48.dp)
-                                .fillMaxWidth()
-                                .padding(end = 8.dp),
-                            imageVector = Icons.Filled.AccountCircle,
-                            contentDescription = "content description",
-                        )
-                        Text("Foobar")
-                    }
-                },
-                actions = {
-                    IconButton({}) {
-                        Icon(
-                            imageVector = Icons.Filled.Call,
-                            contentDescription = "content description",
-                        )
-                    }
-                    IconButton({}) {
-                        Icon(
-                            imageVector = Icons.Filled.Person,
-                            contentDescription = "content description",
-                        )
-                    }
-                    IconButton({}) {
-                        Icon(
-                            imageVector = Icons.Filled.MoreVert,
-                            contentDescription = "content description",
-                        )
-                    }
-                },
-            )
-        },
-        bottomBar = {
-            BottomAppBar(
-                actions = {
-                    IconButton({}) {
-                        Icon(
-                            Icons.Filled.AddCircle,
-                            contentDescription = "content description"
-                        )
-                    }
-                    IconButton({}) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.List,
-                            contentDescription = "content description",
-                        )
-                    }
-                    TextField(
-                        value = textFieldTxt,
-//                        label = {
-//                            Text("Text message")
-//                        },
-                        placeholder = {
-                            Text("Text message")
-                        },
-                        onValueChange = {
-                            textFieldTxt = it
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = TextFieldDefaults.colors(
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent,
-                            disabledIndicatorColor = Color.Transparent
-                        ),
-                        trailingIcon = {
-                            Row (
-                                modifier = Modifier
-                                    .wrapContentWidth()
-                                    .padding(end = 16.dp),
-                                horizontalArrangement = Arrangement.SpaceEvenly,
-//                                horizontalArrangement = Arrangement.SpaceAround,
-                            ) {
-                                Icon(
-                                    modifier = Modifier.padding(start = 8.dp),
-                                    imageVector = Icons.Filled.Face,
-                                    contentDescription = "content description"
-                                )
-                                Icon(
-                                    modifier = Modifier.padding(start = 8.dp),
-                                    imageVector = Icons.AutoMirrored.Filled.ExitToApp,
-                                    contentDescription = "content description"
-                                )
-                            }
-                        },
-                        shape = RoundedCornerShape(25.dp)
-                    )
-                }
-            )
-
-        },
-//        floatingActionButton = {
-//            FloatingActionButton(
-//                onClick = { presses++ }
-//            ) {
-//                Icon(Icons.Default.Add, contentDescription = "Add")
-//            }
-//        }
-    ) { innerPadding ->
-        var msgs: List<String> = listOf(
-            "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos, sed aperiam? Quibusdam et cupiditate quas. Unde id veniam fugit magnam! Et corrupti quaerat aperiam consequuntur. Quos, sed aperiam? Quibusdam et cupiditate quas. Unde id veniam fugit magnam! Unde id veniam fugit magnam! Et corrupti quaerat aperiam consequuntur.",
-            "foobar",
-            "Unde id veniam fugit magnam! Et corrupti quaerat aperiam consequuntur. Quibusdam et cupiditate quas. Unde id veniam fugit magnam! Et corrupti quaerat aperiam consequuntur.",
-            "baz"
-        )
-
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
-            verticalArrangement = Arrangement.Bottom,
-            horizontalAlignment = Alignment.End,
+    BubbleLayout(
+        modifier = Modifier.padding(horizontal = 8.dp),
+        backgroundColor = if (i % 2 == 0) MaterialTheme.colorScheme.inversePrimary else MaterialTheme.colorScheme.surfaceDim,
+        bubbleState = BubbleState(
+            cornerRadius = BubbleCornerRadius(
+                topLeft = 16.dp,
+                topRight = 16.dp,
+                bottomLeft = 16.dp,
+                bottomRight = 16.dp
+            ),
+            alignment = ArrowAlignment.BottomRight,
+            arrowShape = ArrowShape.Curved,
+            drawArrow = true,
+        ),
+    ) {
+        Box(
+            Modifier.padding(12.dp),
         ) {
+            Column (
+                modifier = Modifier.padding(vertical = 4.dp)
+            ) {
 
-            msgs.reversed().forEachIndexed { i, msg ->
-                BubbleLayout (
-                    modifier = Modifier.padding(horizontal = 8.dp),
-                    backgroundColor = if (i % 2 == 0) MaterialTheme.colorScheme.inversePrimary else MaterialTheme.colorScheme.surfaceDim,
-                    bubbleState = BubbleState(
-                        cornerRadius = BubbleCornerRadius(topLeft = 16.dp, topRight = 16.dp, bottomLeft = 16.dp, bottomRight = 16.dp),
-                        alignment = if (i % 2 == 0) ArrowAlignment.BottomRight else ArrowAlignment.BottomRight,
-                        arrowShape = ArrowShape.Curved,
-                        drawArrow = true,
-                    ),
-                ) {
-                    Box (
-                        Modifier.padding(vertical = 8.dp, horizontal = 8.dp),
+                Text(
+                    text = msg,
+                    maxLines = if (showMore) Int.MAX_VALUE else 2,
+                    overflow = if (showMore) TextOverflow.Visible else TextOverflow.Ellipsis,
+                    onTextLayout = {
+                        showMoreBtn = it.hasVisualOverflow
+                    }
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                if (showMoreBtn) {
+                    TextButton(
+                        onClick = { showMore = true },
+                        contentPadding = PaddingValues(1.dp),
+                        modifier = Modifier
+                            .defaultMinSize(minWidth = 1.dp, minHeight = 1.dp)
                     ) {
-                        Column {
-                            Text(
-                                text = msg,
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis,
-                                onTextLayout = {
-                                    showMoreBtn = it.hasVisualOverflow
-                                }
-                            )
-
-                            Spacer(modifier = Modifier.height(4.dp))
-
-                            if (showMoreBtn) {
-                                TextButton({}) {
-                                    Text("mas...")
-                                }
-                            }
-                        }
+                        Text("mas...")
                     }
                 }
-                Spacer(modifier = Modifier.height(8.dp))
-            }
 
+                if (showMore) {
+                    TextButton(
+                        onClick = { showMore = false },
+                        contentPadding = PaddingValues(1.dp),
+                        modifier = Modifier
+                            .defaultMinSize(minWidth = 1.dp, minHeight = 1.dp)
+                    ) {
+                        Text("menos...")
+                    }
+                }
+            }
         }
     }
 }
@@ -493,3 +346,25 @@ fun BubbleLayout(
         content()
     }
 }
+
+
+@Preview
+@Composable
+fun MyPreview () {
+    var showMore: Boolean by remember {
+        mutableStateOf(false)
+    }
+
+    TextButton(
+        onClick = { showMore = false },
+        contentPadding = PaddingValues(),
+        modifier = Modifier
+            .defaultMinSize(minWidth = 1.dp, minHeight = 1.dp)
+
+    ) {
+        Text(
+            text = "menos...",
+        )
+    }
+}
+
