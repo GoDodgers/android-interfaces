@@ -24,6 +24,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -239,16 +241,19 @@ fun ChatView() {
             "Veritatis maiores eaque nostrum, quibusdam consequatur atque temporibus quia sit tempora ex quos, dolorem neque consequuntur pariatur nesciunt qui tenetur illum non ullam itaque officiis, provident quaerat sint mollitia. Eos magnam vel, ipsum inventore similique eveniet fuga sit quasi pariatur consequuntur doloribus sunt dolore! Nobis, vel cum neque aperiam illum nam ut est, odio cupiditate veritatis commodi quibusdam ipsa id et voluptatibus, modi sint sit sapiente excepturi repudiandae recusandae alias eaque eligendi."
         )
 
-        Column(
+
+
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
+            reverseLayout = true,
             verticalArrangement = Arrangement.Bottom,
             horizontalAlignment = Alignment.End,
         ) {
 
-            msgs.reversed().forEachIndexed { i, msg ->
-                Message(i, msg)
+            items(msgs) {message ->
+                Message(message, if ((0..10).random() <= 5) "dodger" else "kiki")
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
@@ -257,7 +262,7 @@ fun ChatView() {
 }
 
 @Composable
-private fun Message(i: Int, msg: String) {
+private fun Message(msg: String, author: String) {
 
     var showMoreBtn: Boolean by remember {
         mutableStateOf(false)
@@ -269,7 +274,7 @@ private fun Message(i: Int, msg: String) {
 
     BubbleLayout(
         modifier = Modifier.padding(horizontal = 8.dp),
-        backgroundColor = if (i % 2 == 0) MaterialTheme.colorScheme.inversePrimary else MaterialTheme.colorScheme.surfaceDim,
+        backgroundColor = if (author == "dodger") MaterialTheme.colorScheme.inversePrimary else MaterialTheme.colorScheme.surfaceDim,
         bubbleState = BubbleState(
             cornerRadius = BubbleCornerRadius(
                 topLeft = 16.dp,
