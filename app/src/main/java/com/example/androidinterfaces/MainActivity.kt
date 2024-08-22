@@ -7,8 +7,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -75,7 +77,9 @@ import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.VectorPainter
 import androidx.compose.ui.graphics.vector.VectorPath
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -101,15 +105,16 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             Surface {
-                ChatView()
+//                ChatView()
             }
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
+@Preview(showSystemUi = true)
 @Composable
-fun ChatView() {
+fun ChatViewPreview() {
 
     var textFieldTxt by remember {
         mutableStateOf("")
@@ -247,13 +252,18 @@ fun ChatView() {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
-            reverseLayout = true,
-            verticalArrangement = Arrangement.Bottom,
-            horizontalAlignment = Alignment.End,
+            reverseLayout = true
         ) {
 
             items(msgs) {message ->
-                Message(message, if ((0..10).random() <= 5) "dodger" else "kiki")
+                var sender = if ((0..10).random() <= 5) "dodger" else "kiki"
+                
+                Row (
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = if (sender == "dodger") Arrangement.End else Arrangement.Start
+                ) {
+                    Message(message, sender)
+                }
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
@@ -261,6 +271,7 @@ fun ChatView() {
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun Message(msg: String, author: String) {
 
@@ -272,58 +283,68 @@ private fun Message(msg: String, author: String) {
         mutableStateOf(false)
     }
 
-    BubbleLayout(
-        modifier = Modifier.padding(horizontal = 8.dp),
-        backgroundColor = if (author == "dodger") MaterialTheme.colorScheme.inversePrimary else MaterialTheme.colorScheme.surfaceDim,
-        bubbleState = BubbleState(
-            cornerRadius = BubbleCornerRadius(
-                topLeft = 16.dp,
-                topRight = 16.dp,
-                bottomLeft = 16.dp,
-                bottomRight = 16.dp
+    Box {
+        BubbleLayout(
+            modifier = Modifier.padding(horizontal = 8.dp),
+            backgroundColor = if (author == "dodger") MaterialTheme.colorScheme.inversePrimary else MaterialTheme.colorScheme.surfaceDim,
+            bubbleState = BubbleState(
+                cornerRadius = BubbleCornerRadius(
+                    topLeft = 16.dp,
+                    topRight = 16.dp,
+                    bottomLeft = 16.dp,
+                    bottomRight = 16.dp
+                ),
+                alignment = ArrowAlignment.BottomRight,
+                arrowShape = ArrowShape.Curved,
+                drawArrow = true,
             ),
-            alignment = ArrowAlignment.BottomRight,
-            arrowShape = ArrowShape.Curved,
-            drawArrow = true,
-        ),
-    ) {
-        Box(
-            Modifier.padding(12.dp),
         ) {
-            Column (
-                modifier = Modifier.padding(vertical = 4.dp)
+            Box(
+                Modifier.padding(12.dp),
             ) {
+                Column () {
+                    val clipboardManager = LocalClipboardManager.current
 
-                Text(
-                    text = msg,
-                    maxLines = if (showMore) Int.MAX_VALUE else 2,
-                    overflow = if (showMore) TextOverflow.Visible else TextOverflow.Ellipsis,
-                    onTextLayout = {
-                        showMoreBtn = it.hasVisualOverflow
-                    }
-                )
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                if (showMoreBtn) {
-                    TextButton(
-                        onClick = { showMore = true },
-                        contentPadding = PaddingValues(1.dp),
+                    Text(
+                        text = msg,
                         modifier = Modifier
-                            .defaultMinSize(minWidth = 1.dp, minHeight = 1.dp)
-                    ) {
-                        Text("mas...")
-                    }
-                }
+                            .combinedClickable(
+                                onLongClick = {
+                                    clipboardManager.setText(AnnotatedString(msg))
+                                },
+                                onClick ={
 
-                if (showMore) {
-                    TextButton(
-                        onClick = { showMore = false },
-                        contentPadding = PaddingValues(1.dp),
-                        modifier = Modifier
-                            .defaultMinSize(minWidth = 1.dp, minHeight = 1.dp)
-                    ) {
-                        Text("menos...")
+                                }
+                            ),
+                        maxLines = if (showMore) Int.MAX_VALUE else 2,
+                        overflow = if (showMore) TextOverflow.Visible else TextOverflow.Ellipsis,
+                        onTextLayout = {
+                            showMoreBtn = it.hasVisualOverflow
+                        }
+                    )
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    if (showMoreBtn) {
+                        TextButton(
+                            onClick = { showMore = true },
+                            contentPadding = PaddingValues(1.dp),
+                            modifier = Modifier
+                                .defaultMinSize(minWidth = 1.dp, minHeight = 1.dp)
+                        ) {
+                            Text("mas...")
+                        }
+                    }
+
+                    if (showMore) {
+                        TextButton(
+                            onClick = { showMore = false },
+                            contentPadding = PaddingValues(1.dp),
+                            modifier = Modifier
+                                .defaultMinSize(minWidth = 1.dp, minHeight = 1.dp)
+                        ) {
+                            Text("menos...")
+                        }
                     }
                 }
             }
@@ -353,23 +374,4 @@ fun BubbleLayout(
 }
 
 
-@Preview
-@Composable
-fun MyPreview () {
-    var showMore: Boolean by remember {
-        mutableStateOf(false)
-    }
-
-    TextButton(
-        onClick = { showMore = false },
-        contentPadding = PaddingValues(),
-        modifier = Modifier
-            .defaultMinSize(minWidth = 1.dp, minHeight = 1.dp)
-
-    ) {
-        Text(
-            text = "menos...",
-        )
-    }
-}
 
