@@ -6,6 +6,13 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -78,6 +85,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.VectorPainter
 import androidx.compose.ui.graphics.vector.VectorPath
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
@@ -105,16 +113,16 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             Surface {
-//                ChatView()
+                ChatView()
             }
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview(showSystemUi = true)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ChatViewPreview() {
+fun ChatView() {
 
     var textFieldTxt by remember {
         mutableStateOf("")
@@ -237,16 +245,20 @@ fun ChatViewPreview() {
 //            }
 //        }
     ) { innerPadding ->
+//        var msgs: List<String> = listOf(
+//            "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos, sed aperiam? Quibusdam et cupiditate quas. Unde id veniam fugit magnam! Et corrupti quaerat aperiam consequuntur. Quos, sed aperiam? Quibusdam et cupiditate quas. Unde id veniam fugit magnam! Unde id veniam fugit magnam! Et corrupti quaerat aperiam consequuntur.",
+//            "foobar",
+//            "Unde id veniam fugit magnam! Et corrupti quaerat aperiam consequuntur. Quibusdam et cupiditate quas. Unde id veniam fugit magnam! Et corrupti quaerat aperiam consequuntur.",
+//            "baz",
+//            "boo",
+//            "Veritatis maiores eaque nostrum, quibusdam consequatur atque temporibus quia sit tempora ex quos, dolorem neque consequuntur pariatur nesciunt qui tenetur illum non ullam itaque officiis, provident quaerat sint mollitia. Eos magnam vel, ipsum inventore similique eveniet fuga sit quasi pariatur consequuntur doloribus sunt dolore! Nobis, vel cum neque aperiam illum nam ut est, odio cupiditate veritatis commodi quibusdam ipsa id et voluptatibus, modi sint sit sapiente excepturi repudiandae recusandae alias eaque eligendi."
+//        )
+
+
         var msgs: List<String> = listOf(
-            "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos, sed aperiam? Quibusdam et cupiditate quas. Unde id veniam fugit magnam! Et corrupti quaerat aperiam consequuntur. Quos, sed aperiam? Quibusdam et cupiditate quas. Unde id veniam fugit magnam! Unde id veniam fugit magnam! Et corrupti quaerat aperiam consequuntur.",
-            "foobar",
-            "Unde id veniam fugit magnam! Et corrupti quaerat aperiam consequuntur. Quibusdam et cupiditate quas. Unde id veniam fugit magnam! Et corrupti quaerat aperiam consequuntur.",
-            "baz",
-            "boo",
-            "Veritatis maiores eaque nostrum, quibusdam consequatur atque temporibus quia sit tempora ex quos, dolorem neque consequuntur pariatur nesciunt qui tenetur illum non ullam itaque officiis, provident quaerat sint mollitia. Eos magnam vel, ipsum inventore similique eveniet fuga sit quasi pariatur consequuntur doloribus sunt dolore! Nobis, vel cum neque aperiam illum nam ut est, odio cupiditate veritatis commodi quibusdam ipsa id et voluptatibus, modi sint sit sapiente excepturi repudiandae recusandae alias eaque eligendi."
+            "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos, sed aperiam? Quibusdam et cupiditate quas. Unde id veniam fugit magnam! Et corrupti quaerat aperiam consequuntur. Quos, sed aperiam? Quibusdam et cupiditate quas. Unde id veniam fugit magnam! Unde id veniam fugit magnam! Et corrupti quaerat aperiam consequuntur. Unde id veniam fugit magnam! Et corrupti quaerat aperiam consequuntur. Quibusdam et cupiditate quas. Unde id veniam fugit magnam! Et corrupti quaerat aperiam consequuntur. Veritatis maiores eaque nostrum, quibusdam consequatur atque temporibus quia sit tempora ex quos, dolorem neque consequuntur pariatur nesciunt qui tenetur illum non ullam itaque officiis, provident quaerat sint mollitia. Eos magnam vel, ipsum inventore similique eveniet fuga sit quasi pariatur consequuntur doloribus sunt dolore! Nobis, vel cum neque aperiam illum nam ut est, odio cupiditate veritatis commodi quibusdam ipsa id et voluptatibus, modi sint sit sapiente excepturi repudiandae recusandae alias eaque eligendi.",
+            "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos, sed aperiam? Quibusdam et cupiditate quas. Unde id veniam fugit magnam! Et corrupti quaerat aperiam consequuntur. Quos, sed aperiam? Quibusdam et cupiditate quas. Unde id veniam fugit magnam! Unde id veniam fugit magnam! Et corrupti quaerat aperiam consequuntur. Unde id veniam fugit magnam! Et corrupti quaerat aperiam consequuntur. Quibusdam et cupiditate quas. Unde id veniam fugit magnam! Et corrupti quaerat aperiam consequuntur. Veritatis maiores eaque nostrum, quibusdam consequatur atque temporibus quia sit tempora ex quos, dolorem neque consequuntur pariatur nesciunt qui tenetur illum non ullam itaque officiis, provident quaerat sint mollitia. Eos magnam vel, ipsum inventore similique eveniet fuga sit quasi pariatur consequuntur doloribus sunt dolore! Nobis, vel cum neque aperiam illum nam ut est, odio cupiditate veritatis commodi quibusdam ipsa id et voluptatibus, modi sint sit sapiente excepturi repudiandae recusandae alias eaque eligendi."
         )
-
-
 
         LazyColumn(
             modifier = Modifier
@@ -257,7 +269,7 @@ fun ChatViewPreview() {
 
             items(msgs) {message ->
                 var sender = if ((0..10).random() <= 5) "dodger" else "kiki"
-                
+
                 Row (
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = if (sender == "dodger") Arrangement.End else Arrangement.Start
@@ -283,6 +295,7 @@ private fun Message(msg: String, author: String) {
         mutableStateOf(false)
     }
 
+
     Box {
         BubbleLayout(
             modifier = Modifier.padding(horizontal = 8.dp),
@@ -294,7 +307,7 @@ private fun Message(msg: String, author: String) {
                     bottomLeft = 16.dp,
                     bottomRight = 16.dp
                 ),
-                alignment = ArrowAlignment.BottomRight,
+                alignment = if (author == "dodger") ArrowAlignment.BottomRight else ArrowAlignment.BottomLeft,
                 arrowShape = ArrowShape.Curved,
                 drawArrow = true,
             ),
@@ -304,6 +317,7 @@ private fun Message(msg: String, author: String) {
             ) {
                 Column () {
                     val clipboardManager = LocalClipboardManager.current
+                    val density = LocalDensity.current
 
                     Text(
                         text = msg,
@@ -312,9 +326,7 @@ private fun Message(msg: String, author: String) {
                                 onLongClick = {
                                     clipboardManager.setText(AnnotatedString(msg))
                                 },
-                                onClick ={
-
-                                }
+                                onClick ={}
                             ),
                         maxLines = if (showMore) Int.MAX_VALUE else 2,
                         overflow = if (showMore) TextOverflow.Visible else TextOverflow.Ellipsis,
@@ -329,14 +341,18 @@ private fun Message(msg: String, author: String) {
                         TextButton(
                             onClick = { showMore = true },
                             contentPadding = PaddingValues(1.dp),
-                            modifier = Modifier
-                                .defaultMinSize(minWidth = 1.dp, minHeight = 1.dp)
+                            modifier = Modifier.defaultMinSize(minWidth = 1.dp, minHeight = 1.dp)
+
                         ) {
                             Text("mas...")
                         }
                     }
 
-                    if (showMore) {
+                    AnimatedVisibility(
+                        visible = showMore,
+                        enter = slideInVertically (initialOffsetY = { -it }) + expandVertically(expandFrom = Alignment.Bottom) + fadeIn(),
+                        exit = slideOutVertically(targetOffsetY = { -it }) + shrinkVertically(shrinkTowards = Alignment.Bottom) + fadeOut()
+                    ) {
                         TextButton(
                             onClick = { showMore = false },
                             contentPadding = PaddingValues(1.dp),
