@@ -7,6 +7,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -326,7 +329,13 @@ private fun Message(msg: String, author: String) {
                                 onLongClick = {
                                     clipboardManager.setText(AnnotatedString(msg))
                                 },
-                                onClick ={}
+                                onClick = {}
+                            )
+                            .animateContentSize(
+                                spring(
+                                    dampingRatio = Spring.DampingRatioLowBouncy,
+                                    stiffness = Spring.StiffnessLow
+                                )
                             ),
                         maxLines = if (showMore) Int.MAX_VALUE else 2,
                         overflow = if (showMore) TextOverflow.Visible else TextOverflow.Ellipsis,
@@ -337,22 +346,21 @@ private fun Message(msg: String, author: String) {
 
                     Spacer(modifier = Modifier.height(4.dp))
 
-                    if (showMoreBtn) {
+                    AnimatedVisibility(
+                        showMoreBtn,
+                        enter = fadeIn(),
+                        exit = fadeOut()
+                    ) {
                         TextButton(
                             onClick = { showMore = true },
                             contentPadding = PaddingValues(1.dp),
                             modifier = Modifier.defaultMinSize(minWidth = 1.dp, minHeight = 1.dp)
-
                         ) {
                             Text("mas...")
                         }
                     }
 
-                    AnimatedVisibility(
-                        visible = showMore,
-                        enter = slideInVertically (initialOffsetY = { -it }) + expandVertically(expandFrom = Alignment.Bottom) + fadeIn(),
-                        exit = slideOutVertically(targetOffsetY = { -it }) + shrinkVertically(shrinkTowards = Alignment.Bottom) + fadeOut()
-                    ) {
+                    if (showMore) {
                         TextButton(
                             onClick = { showMore = false },
                             contentPadding = PaddingValues(1.dp),
@@ -362,6 +370,22 @@ private fun Message(msg: String, author: String) {
                             Text("menos...")
                         }
                     }
+
+//                    AnimatedVisibility(
+//                        visible = showMore,
+//                        enter = slideInVertically (initialOffsetY = { -it }) + expandVertically(expandFrom = Alignment.Bottom),
+//                        exit = slideOutVertically(targetOffsetY = { -it }) + shrinkVertically(shrinkTowards = Alignment.Bottom)
+//                    ) {
+//
+//                        TextButton(
+//                            onClick = { showMore = false },
+//                            contentPadding = PaddingValues(1.dp),
+//                            modifier = Modifier
+//                                .defaultMinSize(minWidth = 1.dp, minHeight = 1.dp)
+//                        ) {
+//                            Text("menos...")
+//                        }
+//                    }
                 }
             }
         }
